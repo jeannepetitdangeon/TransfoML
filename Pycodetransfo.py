@@ -9,6 +9,8 @@ from unidecode import unidecode
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 #dat = pd.read_csv('C:/Users/Marion/OneDrive/Documents/cours/strasbourg/M2/Machine learning/transform\Assignment\data_tweet_sample_challenge.csv')    
@@ -63,12 +65,64 @@ print(var.text)
 # Visualize the data to understand the distribution of tweets over time, 
 # by newspaper, and by engagement metrics (likes, retweets).
 
+# Convert the 'created_at' column to datetime format for time-based analysis
+var['created_at'] = pd.to_datetime(var['created_at'])
+
+# Extract year and month from the 'created_at' column
+var['year'] = var['created_at'].dt.year
+var['month'] = var['created_at'].dt.month
+
+# Group the data by year and month for time-based analysis
+time_grouped = var.groupby(['year', 'month']).size().reset_index(name='count')
+
+# Group the data by newspaper for analysis by newspaper
+newspaper_grouped = var['author.username'].value_counts().reset_index(name='count')
+
+# Group the data by engagement metrics (likes and retweets)
+engagement_grouped = var[['public_metrics.like_count', 'public_metrics.retweet_count']].sum().reset_index()
+
+# Create visualizations:
+
+# Distribution of tweets over time
+plt.figure(figsize=(12, 6))
+sns.lineplot(data=time_grouped, x='year', y='count')
+plt.xlabel('Year')
+plt.ylabel('Number of Tweets')
+plt.title('Distribution of Tweets Over Time')
+plt.show()
+
+# Distribution of tweets by newspaper
+plt.figure(figsize=(12, 6))
+sns.barplot(data=newspaper_grouped.head(10), x='author.username', y='count')
+plt.xlabel('Author Username')
+plt.ylabel('Number of Tweets')
+plt.title('Distribution of Tweets by Author Username (Top 10)')
+plt.xticks(rotation=45)
+plt.show()
+
+# Distribution of tweets by engagement metrics
+plt.figure(figsize=(10, 6))
+sns.barplot(data=engagement_grouped, x='index', y='public_metrics.like_count', hue='index')
+plt.xlabel('Engagement Metric')
+plt.ylabel('Total Count')
+plt.title('Distribution of Tweets by Engagement Metrics (Likes and Retweets)')
+plt.xticks(rotation=45)
+plt.legend(title='Engagement Metric')
+plt.show()
+
 
 
 # Extract hashtags from the tweet text
 
+df = pd.DataFrame(var)
 
+def extract_hashtags(text):
+    hashtags = re.findall(r'#\w+', text)
+    return hashtags
 
+df['hashtags'] = var['text'].apply(extract_hashtags)
+
+print(df)
 
 
 
