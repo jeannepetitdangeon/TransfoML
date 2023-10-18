@@ -73,42 +73,57 @@ print(var.text)
 # by newspaper, and by engagement metrics (likes, retweets).
 
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+# Détecter les journaux les plus importants 
 
-# Convert the 'created_at' column to datetime
+# Calcul des likes par follower
+var['likes_per_follower'] = var['public_metrics.like_count'] / var['author.public_metrics.followers_count']
+top_journals_by_country = var.groupby(['label', 'author.name'])['likes_per_follower'].mean().groupby('label', group_keys=False).nlargest(5)
+print(top_journals_by_country)
+
+
+
+# Convertissez la colonne 'created_at' en datetime dans le DataFrame var
 var['created_at'] = pd.to_datetime(var['created_at'])
 
-# Extract the year and month from the 'created_at' column
+# Extrait l'année et le mois de la colonne 'created_at' dans le DataFrame var
 var['year'] = var['created_at'].dt.year
 var['month'] = var['created_at'].dt.month
 
-# 1. Calculez la métrique d'importance basée sur le nombre de followers
-var['likes_per_follower'] = var['public_metrics.like_count'] / var['author.public_metrics.followers_count']
+# Fusionnez les DataFrames var et top_journals_by_country sur les colonnes pertinentes
+merged_data = var.merge(top_journals_by_country, on=['author.name', 'label'])
 
-# 2. Sélectionnez les cinq journaux les plus importants pour chaque pays
-top_newspapers_by_country = var.groupby(['label', 'author.name']).agg({'likes_per_follower': 'mean'}).groupby('label').apply(lambda x: x.nlargest(5, 'likes_per_follower')).reset_index(level=0, drop=True)
-
-# 3. Renommez la colonne "label" de la métrique "likes_per_follower"
-top_newspapers_by_country = top_newspapers_by_country.reset_index().rename(columns={'label': 'Pays'})
-
-# 4. Créez des visualisations pour comprendre la distribution des tweets
+# Créez une visualisation de la distribution des likes par année et mois
 plt.figure(figsize=(12, 6))
-sns.countplot(x='year', hue='month', data=var, palette='Set3')
+sns.barplot(x='year', y='public_metrics.like_count', hue='month', data=merged_data, ci=None, palette='Set3')
 plt.xlabel('Année')
-plt.ylabel('Nombre de Tweets')
-plt.title('Distribution des Tweets au fil du temps')
-plt.legend(title='Mois', loc='upper right', labels=['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'])
+plt.ylabel('Nombre de Likes')
+plt.title('Distribution des Likes par Année et Mois pour les Journaux les plus Importants')
 plt.xticks(rotation=45)
 plt.show()
 
-plt.figure(figsize=(12, 6))
-sns.barplot(x='author.username', y='likes_per_follower', hue='Pays', data=top_newspapers_by_country)
-plt.xlabel('Journal (author.name)')
-plt.ylabel('Likes par Follower')
-plt.title('Distribution des Likes par Follower pour les Journaux les plus Importants (5 par pays)')
-plt.xticks(rotation=90)
-plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
