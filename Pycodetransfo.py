@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Oct 18 11:32:59 2023
+import panda as pd
+import os 
 
-@author: epcmic
-"""
+dat = read.csv
 
