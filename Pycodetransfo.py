@@ -12,6 +12,7 @@ nltk.download('omw-1.4')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+###############################################################################
 
 #dat = pd.read_csv('C:/Users/Marion/OneDrive/Documents/cours/strasbourg/M2/Machine learning/transform\Assignment\data_tweet_sample_challenge.csv')    
 dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challenge/data_tweet_sample_challenge.csv')
@@ -27,6 +28,8 @@ dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challen
 
 var = dat.loc[:,["id","created_at", "text", "author.id", "author.username", "author.public_metrics.followers_count","public_metrics.like_count","public_metrics.retweet_count","lang", "label"]]
 
+###############################################################################
+
 #check if there are na inside the dataset
 
 print("Number of missing values in 'id':", var['id'].isna().sum())
@@ -41,9 +44,10 @@ print("Number of missing values in 'lang':", var['lang'].isna().sum())
 print("Number of missing values in 'label':", var['label'].isna().sum())
 
 
+###############################################################################
+
 # Data Pre-processing
 # Text cleaning on the tweet content.
-
 
 def clean_text(text):
     text = unidecode(text)
@@ -62,53 +66,67 @@ var['text'] = var['text'].apply(clean_text)
 print(var.text)
 
 
+
+###############################################################################
+
 # Visualize the data to understand the distribution of tweets over time, 
 # by newspaper, and by engagement metrics (likes, retweets).
 
-# Convert the 'created_at' column to datetime format for time-based analysis
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Convert the 'created_at' column to datetime
 var['created_at'] = pd.to_datetime(var['created_at'])
 
-# Extract year and month from the 'created_at' column
+# Extract the year and month from the 'created_at' column
 var['year'] = var['created_at'].dt.year
 var['month'] = var['created_at'].dt.month
 
-# Group the data by year and month for time-based analysis
-time_grouped = var.groupby(['year', 'month']).size().reset_index(name='count')
-
-# Group the data by newspaper for analysis by newspaper
-newspaper_grouped = var['author.username'].value_counts().reset_index(name='count')
-
-# Group the data by engagement metrics (likes and retweets)
-engagement_grouped = var[['public_metrics.like_count', 'public_metrics.retweet_count']].sum().reset_index()
-
-# Create visualizations:
-
-# Distribution of tweets over time
+# Plot 1: Distribution of tweets over time
 plt.figure(figsize=(12, 6))
-sns.lineplot(data=time_grouped, x='year', y='count')
+sns.countplot(x='year', hue='month', data=var, palette='Set3')
 plt.xlabel('Year')
 plt.ylabel('Number of Tweets')
 plt.title('Distribution of Tweets Over Time')
+plt.legend(title='Month', loc='upper right', labels=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+plt.xticks(rotation=45)
 plt.show()
 
-# Distribution of tweets by newspaper
+# Plot 2: Distribution of tweets by newspaper
 plt.figure(figsize=(12, 6))
-sns.barplot(data=newspaper_grouped.head(10), x='author.username', y='count')
-plt.xlabel('Author Username')
+sns.countplot(x='author.username', data=var, palette='Set3', order=var['author.username'].value_counts().index)
+plt.xlabel('Newspaper (author.username)')
 plt.ylabel('Number of Tweets')
-plt.title('Distribution of Tweets by Author Username (Top 10)')
+plt.title('Distribution of Tweets by Newspaper')
+plt.xticks(rotation=90)
+plt.show()
+
+# Plot 3: Distribution of likes and retweets
+plt.figure(figsize=(12, 6))
+sns.barplot(x='year', y='public_metrics.like_count', data=var, palette='Set3', ci=None)
+plt.xlabel('Year')
+plt.ylabel('Total Likes')
+plt.title('Distribution of Likes Over Time')
 plt.xticks(rotation=45)
 plt.show()
 
-# Distribution of tweets by engagement metrics
-plt.figure(figsize=(10, 6))
-sns.barplot(data=engagement_grouped, x='index', y='public_metrics.like_count', hue='index')
-plt.xlabel('Engagement Metric')
-plt.ylabel('Total Count')
-plt.title('Distribution of Tweets by Engagement Metrics (Likes and Retweets)')
+plt.figure(figsize=(12, 6))
+sns.barplot(x='year', y='public_metrics.retweet_count', data=var, palette='Set3', ci=None)
+plt.xlabel('Year')
+plt.ylabel('Total Retweets')
+plt.title('Distribution of Retweets Over Time')
 plt.xticks(rotation=45)
-plt.legend(title='Engagement Metric')
 plt.show()
+
+
+# Essayer par country, par top 5, par like / followers 
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+
 
 
 
