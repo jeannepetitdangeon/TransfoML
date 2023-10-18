@@ -1,6 +1,15 @@
-import requests
+import os
 import pandas as pd
-import os 
+import pandas as pd
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from unidecode import unidecode
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
 
 #dat = pd.read_csv('C:/Users/Marion/OneDrive/Documents/cours/strasbourg/M2/Machine learning/transform\Assignment\data_tweet_sample_challenge.csv')    
 dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challenge/data_tweet_sample_challenge.csv')
@@ -32,6 +41,23 @@ print("Number of missing values in 'label':", var['label'].isna().sum())
 
 # Data Pre-processing
 # Text cleaning on the tweet content.
+
+
+def clean_text(text):
+    text = unidecode(text)
+    text = text.lower()
+    stop_words = set(stopwords.words('english'))
+    allowed_special_chars = ['@', '#']
+    words = text.split()
+    words = [word for word in words if word not in stop_words and not all(char in allowed_special_chars for char in word)]
+    lemmatizer = WordNetLemmatizer()
+    words = [lemmatizer.lemmatize(word) for word in words]
+    cleaned_text = ' '.join(words)
+
+    return cleaned_text
+
+var['text'] = var['text'].apply(clean_text)
+print(var.text)
 
 
 # Visualize the data to understand the distribution of tweets over time, 
