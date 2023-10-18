@@ -26,7 +26,7 @@ dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challen
 # • public metrics.retweet count: Number of retweets
 # • label: Country code ISO-2
 
-var = dat.loc[:,["id","created_at", "text", "author.id", "author.username", "author.public_metrics.followers_count","public_metrics.like_count","public_metrics.retweet_count","lang", "label"]]
+var = dat.loc[:,["id","created_at", "text", "author.id", "author.name", "author.public_metrics.followers_count","public_metrics.like_count","public_metrics.retweet_count","lang", "label"]]
 
 ###############################################################################
 
@@ -36,7 +36,7 @@ print("Number of missing values in 'id':", var['id'].isna().sum())
 print("Number of missing values in 'created_at':", var['created_at'].isna().sum())
 print("Number of missing values in 'text':", var['text'].isna().sum())
 print("Number of missing values in 'author.id':", var['author.id'].isna().sum())
-print("Number of missing values in 'author.username':", var['author.username'].isna().sum())
+print("Number of missing values in 'author.name':", var['author.name'].isna().sum())
 print("Number of missing values in 'author.public_metrics.followers_count':", var['author.public_metrics.followers_count'].isna().sum())
 print("Number of missing values in 'public_metrics.like_count':", var['public_metrics.like_count'].isna().sum())
 print("Number of missing values in 'public_metrics.retweet_count':", var['public_metrics.retweet_count'].isna().sum())
@@ -83,64 +83,47 @@ var['created_at'] = pd.to_datetime(var['created_at'])
 var['year'] = var['created_at'].dt.year
 var['month'] = var['created_at'].dt.month
 
-# Plot 1: Distribution of tweets over time
+# 1. Calculez la métrique d'importance basée sur le nombre de followers
+var['likes_per_follower'] = var['public_metrics.like_count'] / var['author.public_metrics.followers_count']
+
+# 2. Sélectionnez les cinq journaux les plus importants pour chaque pays
+top_newspapers_by_country = var.groupby(['label', 'author.name']).agg({'likes_per_follower': 'mean'}).groupby('label').apply(lambda x: x.nlargest(5, 'likes_per_follower')).reset_index(level=0, drop=True)
+
+# 3. Renommez la colonne "label" de la métrique "likes_per_follower"
+top_newspapers_by_country = top_newspapers_by_country.reset_index().rename(columns={'label': 'Pays'})
+
+# 4. Créez des visualisations pour comprendre la distribution des tweets
 plt.figure(figsize=(12, 6))
 sns.countplot(x='year', hue='month', data=var, palette='Set3')
-plt.xlabel('Year')
-plt.ylabel('Number of Tweets')
-plt.title('Distribution of Tweets Over Time')
-plt.legend(title='Month', loc='upper right', labels=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+plt.xlabel('Année')
+plt.ylabel('Nombre de Tweets')
+plt.title('Distribution des Tweets au fil du temps')
+plt.legend(title='Mois', loc='upper right', labels=['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'])
 plt.xticks(rotation=45)
 plt.show()
 
-# Plot 2: Distribution of tweets by newspaper
 plt.figure(figsize=(12, 6))
-sns.countplot(x='author.username', data=var, palette='Set3', order=var['author.username'].value_counts().index)
-plt.xlabel('Newspaper (author.username)')
-plt.ylabel('Number of Tweets')
-plt.title('Distribution of Tweets by Newspaper')
+sns.barplot(x='author.username', y='likes_per_follower', hue='Pays', data=top_newspapers_by_country)
+plt.xlabel('Journal (author.name)')
+plt.ylabel('Likes par Follower')
+plt.title('Distribution des Likes par Follower pour les Journaux les plus Importants (5 par pays)')
 plt.xticks(rotation=90)
 plt.show()
-
-# Plot 3: Distribution of likes and retweets
-plt.figure(figsize=(12, 6))
-sns.barplot(x='year', y='public_metrics.like_count', data=var, palette='Set3', ci=None)
-plt.xlabel('Year')
-plt.ylabel('Total Likes')
-plt.title('Distribution of Likes Over Time')
-plt.xticks(rotation=45)
-plt.show()
-
-plt.figure(figsize=(12, 6))
-sns.barplot(x='year', y='public_metrics.retweet_count', data=var, palette='Set3', ci=None)
-plt.xlabel('Year')
-plt.ylabel('Total Retweets')
-plt.title('Distribution of Retweets Over Time')
-plt.xticks(rotation=45)
-plt.show()
-
-
-# Essayer par country, par top 5, par like / followers 
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-
 
 
 
 
 # Extract hashtags from the tweet text
 
-df = pd.DataFrame(var)
+# df = pd.DataFrame(var)
 
-def extract_hashtags(text):
-    hashtags = re.findall(r'#\w+', text)
-    return hashtags
+# def extract_hashtags(text):
+#     hashtags = re.findall(r'#\w+', text)
+#     return hashtags
 
-df['hashtags'] = var['text'].apply(extract_hashtags)
+# df['hashtags'] = var['text'].apply(extract_hashtags)
 
-print(df)
+# print(df)
 
 
 
