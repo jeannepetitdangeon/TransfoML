@@ -240,7 +240,6 @@ def translate_to_english(tweet):
 # Put the translation in a new column
 var['english_translation'] = var['text'].apply(translate_to_english)
 
-# Print the translated tweets to the console
 print(var['english_translation'])
 
 
