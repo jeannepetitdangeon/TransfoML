@@ -34,22 +34,6 @@ var = dat.loc[:,["id","created_at", "text", "author.id", "author.name", "author.
 
 ###############################################################################
 
-#check if there are na inside the dataset
-
-# print("Number of missing values in 'id':", var['id'].isna().sum())
-# print("Number of missing values in 'created_at':", var['created_at'].isna().sum())
-# print("Number of missing values in 'text':", var['text'].isna().sum())
-# print("Number of missing values in 'author.id':", var['author.id'].isna().sum())
-# print("Number of missing values in 'author.name':", var['author.name'].isna().sum())
-# print("Number of missing values in 'author.public_metrics.followers_count':", var['author.public_metrics.followers_count'].isna().sum())
-# print("Number of missing values in 'public_metrics.like_count':", var['public_metrics.like_count'].isna().sum())
-# print("Number of missing values in 'public_metrics.retweet_count':", var['public_metrics.retweet_count'].isna().sum())
-# print("Number of missing values in 'lang':", var['lang'].isna().sum())
-# print("Number of missing values in 'label':", var['label'].isna().sum())
-
-
-###############################################################################
-
 # Data Pre-processing
 # Text cleaning on the tweet content.
 
@@ -130,7 +114,6 @@ def analyze_sentiment(text):
 var['sentiment'] = var['text'].apply(analyze_sentiment)
 
 ###############################################################################
-
 
 # Translate non-English tweets into English.
   
