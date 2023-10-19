@@ -9,29 +9,30 @@ output: ioslides_presentation
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## INTRO
+## DATASET DESCRIPTION
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The dataset consists of tweets published by various newspapers that focus on the subject of 4th industrial revolution technologies (AI, Robot, VR, 5g, IoT). The dataset covers the period from 2007 to 2019.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
-
-## DATABASE
-
-- Bullet 1
-- Bullet 2
-- Bullet 3
+- id: Unique identifier for each tweet
+- created at: Time at which the tweet was posted
+- text: The actual content of the tweet
+- author.id: Unique identifier for each user
+- public metrics.like count: Number of likes
+- public metrics.retweet count: Number of retweets
+- label: Country code ISO-2
 
 ## CLEANING
 
-```{r cars, echo = TRUE}
-summary(cars)
-```
 
-## BLABLA
 
-```{r pressure}
-plot(pressure)
-```
+## DATA EXPLORATION
 
-## BLABLA
+
+
+## DATA ANALISIS
+
+
+
+
+## CONCLUSION
 
