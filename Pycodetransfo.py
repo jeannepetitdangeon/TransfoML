@@ -4,7 +4,8 @@ import pandas as pd
 import re
 import nltk
 import spacy
-from google.cloud import translate_v2 as translate
+from googletrans import Translator # pip install googletrans==3.1.0a0
+from tqdm import tqdm
 from textblob import TextBlob
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -81,15 +82,15 @@ print(var.text)
 
 # Extract hashtags from the tweet text
 
-df = pd.DataFrame(var)
+var = pd.DataFrame(var)
 
 def extract_hashtags(text):
     hashtags = re.findall(r'#\w+', text)
     return hashtags
 
-df['hashtags'] = var['text'].apply(extract_hashtags)
+var['hashtags'] = var['text'].apply(extract_hashtags)
 
-print(df)
+print(var)
 
 
 # =============================================================================
@@ -108,10 +109,6 @@ for tweet in tweets:
 
 # Add the extracted entities to your DataFrame
 var['tweet_entities'] = tweet_entities
-
-# Save the updated DataFrame to a new file
-var.to_csv("tweets_with_entities.csv", index=False)  # Replace "tweets_with_entities.csv" with your desired output file
-
 print(var.head())
 
 
@@ -132,49 +129,32 @@ def analyze_sentiment(text):
 # Apply sentiment analysis to the 'text' column
 var['sentiment'] = var['text'].apply(analyze_sentiment)
 
-# Save the updated DataFrame to a new CSV file
-var.to_csv("data_with_sentiment.csv", index=False)
+###############################################################################
+
+
+# Translate non-English tweets into English.
+  
+tr = Translator()
+
+# Creating a progression bar
+progress_bar = tqdm(total=len(var), desc="Translation Progress")
+
+for i, row in var.iterrows():
+    if row["label"] != "en":
+        translated_text = tr.translate(row["text"], dest='en').text
+        var.at[i, "text"] = translated_text
+
+    progress_bar.update(1)
+
+progress_bar.close()
+
 
 
 ###############################################################################
 
 
-# Translate non-English tweets into English.
-
-
-from googletrans import Translator
-import time
-
-def is_valid_language(source_lang, text):
-    try:
-        translator = Translator()
-        translation = translator.translate(text, src=source_lang, dest='en')
-        return True  # The language is valid
-    except Exception:
-        return False  # The language is not valid
-
-def translate_to_english(text, source_lang):
-    try:
-        if source_lang and source_lang != 'en' and text:
-            if is_valid_language(source_lang, text):
-                translator = Translator()
-                translation = translator.translate(text, src=source_lang, dest='en')
-                # Pause for 1 second between translations
-                time.sleep(1)
-                return translation.text
-            else:
-                return text  # Handle the case where the source language is not recognized
-        else:
-            return text
-    except Exception as e:
-        print(f"Erreur lors de la traduction du texte : {e}")
-        return text
-
-# Assuming you have a DataFrame named 'var' with 'text' and 'lang' columns
-var['text_english'] = var.apply(lambda row: translate_to_english(row['text'], row['lang']), axis=1)
-
-# Enregistrer les données traduites dans un nouveau fichier CSV
-var.to_csv("donnees_traduites.csv", index=False)
+# Utilize Zero-Shot Classification to categorize tweets into predefined or 
+# dynamically identified topics.
 
 
 
@@ -182,46 +162,5 @@ var.to_csv("donnees_traduites.csv", index=False)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-# Utilize Zero-Shot Classification to categorize tweets into predefined or dynamically identified topics.
-
-
-
-
-
-
-
-
-
-
-# # Translate non-English tweets into English.
-# from googletrans import Translator
-
-# #the function to do the task
-# def translate_to_english(tweet):
-#     translator = Translator(service_urls=['translate.google.com'])
-#     try:
-#         translation = translator.translate(tweet, dest='en').text
-#     except:
-#         # If there is an error during translation, return the original tweet
-#         translation = tweet
-#     return translation
-
-# # Put the translation in a new column
-# var['english_translation'] = var['text'].apply(translate_to_english)
-
-# print(var['english_translation'])
-
-# # Utilize Zero-Shot Classification to categorize tweets into predefined or dynamically identified topics.
 
 
