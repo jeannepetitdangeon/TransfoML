@@ -1,20 +1,21 @@
 import os
 import pandas as pd
-import pandas as pd
 import re
 import nltk
 import spacy
-from googletrans import Translator # pip install googletrans==3.1.0a0
+from googletrans import Translator
 from tqdm import tqdm
+import time
 from textblob import TextBlob
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from unidecode import unidecode
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 import matplotlib.pyplot as plt
 import seaborn as sns
+from unidecode import unidecode
+
 
 ###############################################################################
 
@@ -47,7 +48,6 @@ def clean_text(text):
     lemmatizer = WordNetLemmatizer()
     words = [lemmatizer.lemmatize(word) for word in words]
     cleaned_text = ' '.join(words)
-
     return cleaned_text
 
 var['text'] = var['text'].apply(clean_text)
@@ -115,8 +115,9 @@ var['sentiment'] = var['text'].apply(analyze_sentiment)
 
 ###############################################################################
 
-# Translate non-English tweets into English.
-  
+# Translate tweets
+
+# Initialize the Translator object
 tr = Translator()
 
 # Creating a progression bar
@@ -124,13 +125,25 @@ progress_bar = tqdm(total=len(var), desc="Translation Progress")
 
 for i, row in var.iterrows():
     if row["label"] != "en":
-        translated_text = tr.translate(row["text"], dest='en').text
-        var.at[i, "text"] = translated_text
+        translated_text = None
+        retries = 3  # Number of times to retry the translation
+        while retries > 0:
+            try:
+                translation = tr.translate(row["text"], dest='en')
+                if translation.text is not None:
+                    translated_text = translation.text
+                    break  # Translation successful, exit the loop
+            except Exception as e:
+                print(f"Error translating row {i}: {e}")
+                retries -= 1
+                time.sleep(2)  # Wait for a moment before retrying
+
+        if translated_text is not None:
+            var.at[i, "text"] = translated_text
 
     progress_bar.update(1)
 
 progress_bar.close()
-
 
 
 ###############################################################################
@@ -138,11 +151,6 @@ progress_bar.close()
 
 # Utilize Zero-Shot Classification to categorize tweets into predefined or 
 # dynamically identified topics.
-
-
-
-
-
 
 
 
