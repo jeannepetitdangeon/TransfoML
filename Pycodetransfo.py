@@ -152,6 +152,35 @@ progress_bar.close()
 # Utilize Zero-Shot Classification to categorize tweets into predefined or 
 # dynamically identified topics.
 
+progress_bar = tqdm(total=len(var), desc="Topics Progress")
 
+from transformers import pipeline
+
+# Load a zero-shot classification pipeline
+classifier = pipeline("zero-shot-classification")
+
+# List of topics or categories
+topics = ["AI", "Robot", "VR", "5g", "IoT"]
+
+# Create an empty list to store the predicted topics
+predicted_topics = []
+
+# Loop through each tweet
+for text in var["text"]:
+    # Perform zero-shot classification
+    result = classifier(text, topics)
+
+    # Extract the most likely label
+    predicted_topic = result['labels'][0]
+    
+    # Append the predicted topic to the list
+    predicted_topics.append(predicted_topic)
+
+# Add the predicted topics to your DataFrame
+var['predicted_topic'] = predicted_topics
+
+progress_bar.update(1)
+
+progress_bar.close()
 
 
