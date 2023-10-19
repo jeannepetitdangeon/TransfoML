@@ -124,10 +124,6 @@ plt.show()
 
 
 
-
-
-
-
 # Extract hashtags from the tweet text
 
 # df = pd.DataFrame(var)
