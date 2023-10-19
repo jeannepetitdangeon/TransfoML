@@ -14,8 +14,8 @@ import seaborn as sns
 
 ###############################################################################
 
-#dat = pd.read_csv('C:/Users/Marion/OneDrive/Documents/cours/strasbourg/M2/Machine learning/transform\Assignment\data_tweet_sample_challenge.csv')    
-dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challenge/data_tweet_sample_challenge.csv')
+dat = pd.read_csv('C:/Users/Marion/OneDrive/Documents/cours/strasbourg/M2/Machine learning/transform\Assignment\data_tweet_sample_challenge.csv')    
+#dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challenge/data_tweet_sample_challenge.csv')
 
 # Keeping important columns, ID, time, content, author id et username, number of followers,  number of likes, number of rt, language, country code
 # • id: Unique identifier for each tweet
@@ -138,20 +138,105 @@ plt.show()
 
 
 
-# Data Analysis
+
+# =============================================================================
+# # Data Analysis
+# =============================================================================
+
 # Apply Name Entity Recognition (NER) to identify key entities in the tweets.
+import spacy
+from spacy import displacy
+spacy.cli.download('en_core_web_sm')
 
+nlp = spacy.load('en_core_web_sm')
 
+# Define a function to perform NER on each tweet
+def perform_ner(tweet):
+    doc = nlp(tweet)
+    entities = [(ent.text, ent.label_) for ent in doc.ents]
+    return entities
+
+var['entities'] = var['text'].apply(perform_ner)
+
+# Define a function to visualize NER in each tweet
+def visualize_ner(tweet):
+    doc = nlp(tweet)
+    displacy.render(doc, style='ent', jupyter=True)
+
+# Apply the visualization function to any tweet of your choice
+visualize_ner('I just had lunch at The Ivy in London!')
+
+# Define a function to generate n-grams from a text
+from typing import List, Tuple
+
+def generate_ngrams(text: str, n: int) -> List[Tuple[str]]:
+    words = text.split()
+    ngrams = []
+    for i in range(len(words) - n + 1):
+        ngram = tuple(words[i:i+n])
+        ngrams.append(ngram)
+    return ngrams
+
+# Sample text for n-grams generation
+sample_text = "Natural language processing is a subfield of artificial intelligence."
+
+# Generate unigrams, bigrams, and trigrams
+unigrams = generate_ngrams(sample_text, 1)
+bigrams = generate_ngrams(sample_text, 2)
+trigrams = generate_ngrams(sample_text, 3)
+print(unigrams, bigrams, trigrams)
 
 # Perform Sentiment Analysis to evaluate newspaper sentiment towards this technologies.
+from textblob import TextBlob
+from typing import Tuple
 
+def analyze_sentiment(text: str) -> Tuple[float, float]:
+    """
+    Conduct sentiment analysis on the given text using TextBlob.
+    
+    Parameters:
+    - text (str): The input text for sentiment analysis.
+    
+    Returns:
+    - Tuple[float, float]: A tuple containing polarity and subjectivity scores.
+    """
+    # Create a TextBlob object
+    blob = TextBlob(text)
+    
+    # Fetch the sentiment attributes (polarity and subjectivity)
+    polarity = blob.sentiment.polarity
+    subjectivity = blob.sentiment.subjectivity
+    
+    return polarity, subjectivity
 
+# Analyze the sentiment of the sample texts
+sample_texts = [
+    "I love programming. It's amazing!",
+    "I hate bugs. They are annoying.",
+    "The code is okay, could be better."
+]
 
+sentiment_results = [analyze_sentiment(text) for text in sample_texts]
 
+print(sentiment_results)
 
 # Translate non-English tweets into English.
+from googletrans import Translator
 
+#the function to do the task
+def translate_to_english(tweet):
+    translator = Translator(service_urls=['translate.google.com'])
+    try:
+        translation = translator.translate(tweet, dest='en').text
+    except:
+        # If there is an error during translation, return the original tweet
+        translation = tweet
+    return translation
 
+# Put the translation in a new column
+var['english_translation'] = var['text'].apply(translate_to_english)
+
+print(var['english_translation'])
 
 
 # Utilize Zero-Shot Classification to categorize tweets into predefined or dynamically identified topics.
