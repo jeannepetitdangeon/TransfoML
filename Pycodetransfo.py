@@ -18,7 +18,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from unidecode import unidecode
 
-
 ###############################################################################
 
 dat = pd.read_csv('C:/Users/epcmic/OneDrive/Documents/GitHub/Transformer/Challenge/data_tweet_sample_challenge.csv')
@@ -68,7 +67,6 @@ var['hashtags'] = var['text'].apply(extract_hashtags)
 
 print(var)
 
-
 # =============================================================================
 # # Data Analysis
 # =============================================================================
@@ -86,7 +84,6 @@ for tweet in tweets:
 # Add the extracted entities to your DataFrame
 var['tweet_entities'] = tweet_entities
 print(var.head())
-
 
 ###############################################################################
 
@@ -109,33 +106,34 @@ var['sentiment'] = var['text'].apply(analyze_sentiment)
 
 # Translate tweets
 
-# Initialize the Translator object
-#tr = Translator()
+#Initialize the Translator object
 
-# Creating a progression bar
-# progress_bar = tqdm(total=len(var), desc="Translation Progress")
+tr = Translator()
 
-# for i, row in var.iterrows():
-#     if row["label"] != "en":
-#         translated_text = None
-#         retries = 3  # Number of times to retry the translation
-#         while retries > 0:
-#             try:
-#                 translation = tr.translate(row["text"], dest='en')
-#                 if translation.text is not None:
-#                     translated_text = translation.text
-#                     break  # Translation successful, exit the loop
-#             except Exception as e:
-#                 print(f"Error translating row {i}: {e}")
-#                 retries -= 1
-#                 time.sleep(2)  # Wait for a moment before retrying
+Creating a progression bar
+progress_bar = tqdm(total=len(var), desc="Translation Progress")
 
-#         if translated_text is not None:
-#             var.at[i, "text"] = translated_text
+for i, row in var.iterrows():
+    if row["label"] != "en":
+        translated_text = None
+        retries = 3  # Number of times to retry the translation
+        while retries > 0:
+            try:
+                translation = tr.translate(row["text"], dest='en')
+                if translation.text is not None:
+                    translated_text = translation.text
+                    break  # Translation successful, exit the loop
+            except Exception as e:
+                print(f"Error translating row {i}: {e}")
+                retries -= 1
+                time.sleep(2)  # Wait for a moment before retrying
 
-#     progress_bar.update(1)
+        if translated_text is not None:
+            var.at[i, "text"] = translated_text
 
-# progress_bar.close()
+    progress_bar.update(1)
+
+progress_bar.close()
 
 
 ###############################################################################
@@ -147,12 +145,18 @@ var['sentiment'] = var['text'].apply(analyze_sentiment)
 
 import pandas as pd
 from transformers import pipeline
+tqdm.pandas()
+
+
+progress_bar = tqdm(total=len(var), desc="Classification Progress")
 
 tweet_topics = ["AI", "Robot", "VR", "5g", "IoT"]
 classifier = pipeline("zero-shot-classification")
-var['classification_results'] = var['text_column'].apply(lambda text: classifier(text, tweet_topics))
+var['classification_results'] = var['text'][:100].progress_apply(lambda text: classifier(text, tweet_topics)["labels"][0])
 
+progress_bar.update(1)
 
+progress_bar.close()
 
 
 
