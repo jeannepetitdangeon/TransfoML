@@ -144,42 +144,15 @@ var['sentiment'] = var['text'].apply(analyze_sentiment)
 # Utilize Zero-Shot Classification to categorize tweets into predefined or 
 # dynamically identified topics.
 
-from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-# Load the T5 model and tokenizer
-model_name = "t5-small"
-tokenizer = T5Tokenizer.from_pretrained(model_name)
-model = T5ForConditionalGeneration.from_pretrained(model_name)
+import pandas as pd
+from transformers import pipeline
 
-# List of topics or categories
-topics = ["AI", "Robot", "VR", "5g", "IoT"]
-
-# Create an empty list to store the predicted topics
-predicted_topics = []
-
-# Loop through each tweet
-for text in var["text"]:
-    # Build the input prompt for T5
-    input_prompt = f"Categorize this tweet: {text} into topics: {', '.join(topics)}"
-
-    # Tokenize the input prompt
-    input_ids = tokenizer(input_prompt, return_tensors="pt", padding=True, truncation=True)
-
-    # Generate predictions with T5
-    with torch.no_grad():
-        outputs = model.generate(input_ids["input_ids"])
-
-    # Decode the predicted categories
-    predicted_category = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    # Append the predicted category to the list
-    predicted_topics.append(predicted_category)
-
-# Add the predicted categories to your DataFrame
-var['predicted_topic'] = predicted_topics
-
-# Display the DataFrame with predicted topics
-print(var)
+tweet_topics = ["AI", "Robot", "VR", "5g", "IoT"]
+classifier = pipeline("zero-shot-classification")
+var['classification_results'] = var['text_column'].apply(lambda text: classifier(text, tweet_topics))
+for index, row in var.iterrows():
+    print(f"Row {index}: {row['classification_results']}")
 
 
 
