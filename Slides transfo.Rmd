@@ -43,36 +43,6 @@ print(var.text)
 
 ## DATA EXPLORATION
 
-{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.width=7, fig.height=5)
-library(gridExtra)
-library(magick)
-```
-
-## Diapositive avec plusieurs graphiques
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.width=7, fig.height=5)
-library(gridExtra)
-library(magick)
-```
-
-```{r, fig.show='asis'}
-# Importation des images
-plot1 <- image_read("Plots/Figure nbr of tweets by year.png")
-plot2 <- image_read("Plots/Figure like.png")
-plot3 <- image_read("Plots/Figure like.png")
-
-# Affichage des graphiques avec grid.arrange()
-grid.arrange(
-  image_grob(plot1), 
-  image_grob(plot2),
-  image_grob(plot3),
-  ncol=2,
-  widths=c(1.5, 1),
-  heights=c(1, 1)
-)
-```
-
 ![](Plots/Figure%20nbr%20of%20tweets%20by%20year.png){width="396"}
 
 ![](Plots/Figure%20like.png){width="258"}
