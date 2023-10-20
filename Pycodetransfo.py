@@ -5,18 +5,18 @@ import nltk
 import spacy
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+from unidecode import unidecode
 from googletrans import Translator
 from tqdm import tqdm
-import time
 from textblob import TextBlob
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
-import matplotlib.pyplot as plt
-import seaborn as sns
-from unidecode import unidecode
 
 ###############################################################################
 
@@ -36,6 +36,8 @@ var = dat.loc[:,["id","created_at", "text", "author.id", "author.name", "author.
 ###############################################################################
 
 # Data Pre-processing
+
+
 # Text cleaning on the tweet content.
 
 def clean_text(text):
@@ -53,9 +55,9 @@ def clean_text(text):
 var['text'] = var['text'].apply(clean_text)
 print(var.text)
 
-###############################################################################
-
+#==============================================================================
 # Extract hashtags from the tweet text
+#==============================================================================
 
 var = pd.DataFrame(var)
 
@@ -68,7 +70,7 @@ var['hashtags'] = var['text'].apply(extract_hashtags)
 print(var)
 
 # =============================================================================
-# # Data Analysis
+#  Data Analysis
 # =============================================================================
 
 # Apply Name Entity Recognition (NER) to identify key entities in the tweets.
@@ -89,7 +91,6 @@ print(var.head())
 
 # Perform Sentiment Analysis to evaluate newspaper sentiment towards this technologies.
 
-# Define a function to perform sentiment analysis
 def analyze_sentiment(text):
     analysis = TextBlob(text)
     if analysis.sentiment.polarity > 0:
@@ -106,11 +107,8 @@ var['sentiment'] = var['text'].apply(analyze_sentiment)
 
 # Translate tweets
 
-#Initialize the Translator object
-
 tr = Translator()
 
-Creating a progression bar
 progress_bar = tqdm(total=len(var), desc="Translation Progress")
 
 for i, row in var.iterrows():
@@ -135,18 +133,14 @@ for i, row in var.iterrows():
 
 progress_bar.close()
 
-
 ###############################################################################
-
 
 # Utilize Zero-Shot Classification to categorize tweets into predefined or 
 # dynamically identified topics.
 
-
 import pandas as pd
 from transformers import pipeline
 tqdm.pandas()
-
 
 progress_bar = tqdm(total=len(var), desc="Classification Progress")
 
