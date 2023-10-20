@@ -46,7 +46,8 @@ def clean_text(text):
     stop_words = set(stopwords.words('english'))
     allowed_special_chars = ['@', '#']
     words = text.split()
-    words = [word for word in words if word not in stop_words and not all(char in allowed_special_chars for char in word)]
+    words = [word for word in words if word not in stop_words and not 
+             all(char in allowed_special_chars for char in word)]
     lemmatizer = WordNetLemmatizer()
     words = [lemmatizer.lemmatize(word) for word in words]
     cleaned_text = ' '.join(words)
@@ -146,7 +147,8 @@ progress_bar = tqdm(total=len(var), desc="Classification Progress")
 
 tweet_topics = ["AI", "Robot", "VR", "5g", "IoT"]
 classifier = pipeline("zero-shot-classification")
-var['classification_results'] = var['text'][:100].progress_apply(lambda text: classifier(text, tweet_topics)["labels"][0])
+var['classification_results'] = var['text'][:100].progress_apply(lambda text: classifier
+                                                                 (text, tweet_topics)["labels"][0])
 
 progress_bar.update(1)
 
