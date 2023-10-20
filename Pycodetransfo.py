@@ -151,8 +151,7 @@ from transformers import pipeline
 tweet_topics = ["AI", "Robot", "VR", "5g", "IoT"]
 classifier = pipeline("zero-shot-classification")
 var['classification_results'] = var['text_column'].apply(lambda text: classifier(text, tweet_topics))
-for index, row in var.iterrows():
-    print(f"Row {index}: {row['classification_results']}")
+
 
 
 
