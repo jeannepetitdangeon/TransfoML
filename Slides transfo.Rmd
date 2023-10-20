@@ -13,26 +13,73 @@ knitr::opts_chunk$set(echo = FALSE)
 
 The dataset consists of tweets published by various newspapers that focus on the subject of 4th industrial revolution technologies (AI, Robot, VR, 5g, IoT). The dataset covers the period from 2007 to 2019.
 
-- id: Unique identifier for each tweet
-- created at: Time at which the tweet was posted
-- text: The actual content of the tweet
-- author.id: Unique identifier for each user
-- public metrics.like count: Number of likes
-- public metrics.retweet count: Number of retweets
-- label: Country code ISO-2
+-   id: Unique identifier for each tweet
+-   created at: Time at which the tweet was posted
+-   text: The actual content of the tweet
+-   author.id: Unique identifier for each user
+-   public metrics.like count: Number of likes
+-   public metrics.retweet count: Number of retweets
+-   label: Country code ISO-2
 
 ## CLEANING
 
+```{python}
+def clean_text(text):
+    text = unidecode(text)
+    text = text.lower()
+    stop_words = set(stopwords.words('english'))
+    allowed_special_chars = ['@', '#']
+    words = text.split()
+    words = [word for word in words if word not in stop_words and not all(char in allowed_special_chars for char in word)]
+    lemmatizer = WordNetLemmatizer()
+    words = [lemmatizer.lemmatize(word) for word in words]
+    cleaned_text = ' '.join(words)
 
+    return cleaned_text
+
+var['text'] = var['text'].apply(clean_text)
+print(var.text)
+```
 
 ## DATA EXPLORATION
 
+{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.width=7, fig.height=5)
+library(gridExtra)
+library(magick)
+```
+
+## Diapositive avec plusieurs graphiques
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, fig.width=7, fig.height=5)
+library(gridExtra)
+library(magick)
+```
+
+```{r, fig.show='asis'}
+# Importation des images
+plot1 <- image_read("Plots/Figure nbr of tweets by year.png")
+plot2 <- image_read("Plots/Figure like.png")
+plot3 <- image_read("Plots/Figure like.png")
+
+# Affichage des graphiques avec grid.arrange()
+grid.arrange(
+  image_grob(plot1), 
+  image_grob(plot2),
+  image_grob(plot3),
+  ncol=2,
+  widths=c(1.5, 1),
+  heights=c(1, 1)
+)
+```
+
+![](Plots/Figure%20nbr%20of%20tweets%20by%20year.png){width="396"}
+
+![](Plots/Figure%20like.png){width="258"}
+
+![](Plots/Figure%20like.png){width="264"}
 
 
 ## DATA ANALISIS
 
-
-
-
 ## CONCLUSION
-
